@@ -1,20 +1,42 @@
+const yargs = require('yargs')
 const geocode = require('./geocode')
 const findWeather = require('./weather')
 
-geocode('jimeta adamawa', (error,data) => {
 
-    debugger
+
+const showWeather = (location) => {
+geocode(location, (error,{latitude, longitude, location}) => {
     if(error) {
         console.log(error)
     }else {
-        findWeather(data.latitude, data.longitude, (error,weatherObj) => {
+        findWeather(latitude, longitude, (error,{temparature,probabilityOfRain}) => {
             if(error) {
                 console.log(error)
             } else {
-                console.log(`Summary for ${data.location}. The temperature is ${weatherObj.temparature}, and there is a ${weatherObj.probabilityOfRain}% chances of rain`)
+                console.log(`Summary for ${location}. The temperature is ${temparature}, and there is a ${probabilityOfRain}% chances of rain`)
             }
         })
 
     }
     
 })
+}
+
+yargs.command({
+    command: 'weather',
+    describe: 'shows weather for a location',
+    builder: {
+        location: {
+            describe: 'location name',
+            type: 'string',
+            demandOption: true
+        }
+    },
+    handler({argv}) {
+        showWeather(argv.location)
+
+    }
+})
+
+
+yargs.parse()
